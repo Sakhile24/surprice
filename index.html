@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Love Surprise</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff0f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    button {
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #ff69b4;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+      z-index: 10;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .note {
+      font-size: 22px;
+      color: #d80073;
+      opacity: 0;
+      max-width: 90%;
+      text-align: center;
+      margin-top: 40px;
+      transition: opacity 1s ease;
+      z-index: 5;
+    }
+
+    .note.show {
+      opacity: 1;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: 40px;
+      animation: floatAll 3s linear forwards;
+      z-index: 0;
+    }
+
+    @keyframes floatAll {
+      0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-200px) translateX(-100px) rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button onclick="startSurprise()" id="startBtn">💘 Tap for a Surprise</button>
+  <div class="note" id="note">In your smile, I see something more beautiful than stars — and in your heart, I’ve found my home. ✨❤️</div>
+  <button id="exitBtn" style="display:none; margin-top: 30px;" onclick="resetSurprise()">Exit 💫</button>
+
+  <script>
+    let heartInterval;
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.textContent = '❤️';
+
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.top = Math.random() * 100 + 'vh';
+      heart.style.fontSize = Math.random() * 30 + 30 + 'px';
+
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 3000);
+    }
+
+    function startSurprise() {
+      document.getElementById('startBtn').style.display = 'none';
+
+      // Start heart rain (will NOT stop)
+      heartInterval = setInterval(createHeart, 150);
+
+      // Show the love note after 5 seconds
+      setTimeout(() => {
+        document.getElementById('note').classList.add('show');
+      }, 5000);
+
+      // Show the exit button after 7 seconds
+      setTimeout(() => {
+        document.getElementById('exitBtn').style.display = 'block';
+      }, 7000);
+    }
+
+    function resetSurprise() {
+      clearInterval(heartInterval);
+      document.getElementById('note').classList.remove('show');
+      document.getElementById('exitBtn').style.display = 'none';
+      document.getElementById('startBtn').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
