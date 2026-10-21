@@ -1,123 +1,216 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Love Surprise</title>
-  <style>
-    * {
-      box-sizing: border-box;
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Love Surprise</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fff0f5;
+    color: #d80073;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow-x: hidden;
+    position: relative;
+    padding-block: 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  button {
+    padding: 14px 28px;
+    font-size: 18px;
+    background-color: #ff69b4;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+    z-index: 10;
+    font-family: inherit;
+  }
+  button:hover { transform: scale(1.05); }
+  button:focus-visible { outline: 3px solid #d80073; outline-offset: 3px; }
+  button.ghost { background: #fff; color: #d80073; border: 2px solid #ff69b4; box-shadow: none; }
+
+  .form {
+    z-index: 10;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
+    text-align: center;
+  }
+  .form h1 { margin: 0; font-size: 28px; }
+  .form p { margin: 0; color: #a0407a; font-size: 15px; }
+  .form label { display: flex; flex-direction: column; gap: 4px; text-align: left; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #a0407a; }
+  .form input {
+    font: inherit; font-size: 17px; font-weight: 400; letter-spacing: 0; text-transform: none;
+    color: #5a1a3a; background: #fff; border: 2px solid #ffc0da; border-radius: 16px; padding: 12px 14px; width: 100%;
+  }
+  .form input:focus-visible { outline: 3px solid #ff69b4; outline-offset: 1px; border-color: transparent; }
+  .error { min-height: 1.3em; color: #c0005f; font-size: 14px; }
+
+  .stage { z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; max-width: 520px; }
+
+  .note {
+    font-size: 22px;
+    color: #d80073;
+    opacity: 0;
+    max-width: 100%;
+    text-align: center;
+    transition: opacity 1s ease;
+    z-index: 5;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .note.show { opacity: 1; }
+
+  .codebox {
+    width: 100%;
+    background: #fff;
+    color: #8f1450;
+    border: 2px solid #ffc0da;
+    border-radius: 22px;
+    padding: 20px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 19px;
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 5;
+    box-shadow: 0 10px 24px -12px rgba(216, 0, 115, .6);
+  }
+  .codebox.show { opacity: 1; }
+  .codebox .label { color: #c05a8e; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .codebox pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; min-height: 3em; }
+
+  .row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .row[hidden] { display: none; }
+
+  .heart {
+    position: absolute;
+    font-size: 40px;
+    animation: floatAll 3s linear forwards;
+    z-index: 0;
+    pointer-events: none;
+  }
+  @keyframes floatAll {
+    0% { opacity: 1; transform: scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(-200px) translateX(-100px) rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .heart { display: none; } }
+</style>
+
+<form class="form" id="form" autocomplete="off">
+  <h1>Love Surprise &#128152;</h1>
+  <p>Enter their name and tap the button.</p>
+  <label for="theirName">Their name
+    <input id="theirName" type="text" maxlength="24" placeholder="e.g. Thando">
+  </label>
+  <div class="error" id="error" role="alert"></div>
+  <button type="submit" id="startBtn">&#128152; Tap for a Surprise</button>
+</form>
+
+<div class="stage" id="stage" hidden>
+  <p class="note" id="note"></p>
+  <div class="codebox" id="codebox">
+    <span class="label">A little something for you</span>
+    <pre id="codeText"></pre>
+  </div>
+  <div class="row" id="actions" hidden>
+    <button type="button" id="newCodeBtn">Another love message &#128140;</button>
+    <button type="button" class="ghost" id="exitBtn">Exit &#128171;</button>
+  </div>
+</div>
+
+<script>
+  var heartInterval, noteTimer, exitTimer;
+  var lastIndex = -1;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function createHeart() {
+    var heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.textContent = '❤️';
+    heart.style.left = Math.random() * 100 + 'vw';
+    heart.style.top = Math.random() * 100 + 'vh';
+    heart.style.fontSize = Math.random() * 30 + 30 + 'px';
+    document.body.appendChild(heart);
+    setTimeout(function () { heart.remove(); }, 3000);
+  }
+
+  var templates = [
+    function (b) { return b + ', you are my favourite hello and my hardest goodbye.'; },
+    function (b) { return 'Home is wherever you are, ' + b + '.'; },
+    function (b) { return b + ', you make ordinary days feel like holidays.'; },
+    function (b) { return 'I’m so glad it’s you, ' + b + '.'; },
+    function (b) { return 'Thinking of you, ' + b + '. Always.'; },
+    function (b) { return b + ', you are my person, today and every day.'; },
+    function (b) { return 'My heart does a little dance when you smile, ' + b + '.'; },
+    function (b) { return 'Thank you for being exactly who you are, ' + b + '.'; },
+    function (b) { return 'With you, ' + b + ', everything feels softer and brighter.'; },
+    function (b) { return 'I choose you, ' + b + ', again and again.'; }
+  ];
+
+  function newCode() {
+    var b = $('theirName').value.trim();
+    var i;
+    do { i = Math.floor(Math.random() * templates.length); } while (i === lastIndex);
+    lastIndex = i;
+    $('codeText').textContent = templates[i](b);
+  }
+
+  function startSurprise(e) {
+    e.preventDefault();
+    var b = $('theirName').value.trim();
+    if (!b) {
+      $('error').textContent = 'Please enter their name first.';
+      $('theirName').focus();
+      return;
     }
+    $('error').textContent = '';
+    $('form').hidden = true;
+    $('stage').hidden = false;
 
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #fff0f5;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-    }
+    $('note').textContent = b + ', in your smile I see something more beautiful than stars, and in your heart I’ve found my home. ✨❤️';
+    newCode();
 
-    button {
-      padding: 14px 28px;
-      font-size: 18px;
-      background-color: #ff69b4;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: transform 0.2s ease;
-      z-index: 10;
-    }
+    clearInterval(heartInterval);
+    heartInterval = setInterval(createHeart, 150);
 
-    button:hover {
-      transform: scale(1.05);
-    }
+    clearTimeout(noteTimer);
+    clearTimeout(exitTimer);
+    noteTimer = setTimeout(function () {
+      $('note').classList.add('show');
+      $('codebox').classList.add('show');
+    }, 5000);
+    exitTimer = setTimeout(function () { $('actions').hidden = false; }, 7000);
+  }
 
-    .note {
-      font-size: 22px;
-      color: #d80073;
-      opacity: 0;
-      max-width: 90%;
-      text-align: center;
-      margin-top: 40px;
-      transition: opacity 1s ease;
-      z-index: 5;
-    }
+  function resetSurprise() {
+    clearInterval(heartInterval);
+    clearTimeout(noteTimer);
+    clearTimeout(exitTimer);
+    $('note').classList.remove('show');
+    $('codebox').classList.remove('show');
+    $('actions').hidden = true;
+    $('stage').hidden = true;
+    $('form').hidden = false;
+    $('theirName').focus();
+  }
 
-    .note.show {
-      opacity: 1;
-    }
+  $('form').addEventListener('submit', startSurprise);
+  $('newCodeBtn').addEventListener('click', newCode);
+  $('exitBtn').addEventListener('click', resetSurprise);
+</script>
 
-    .heart {
-      position: absolute;
-      font-size: 40px;
-      animation: floatAll 3s linear forwards;
-      z-index: 0;
-    }
-
-    @keyframes floatAll {
-      0% {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-200px) translateX(-100px) rotate(360deg);
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <button onclick="startSurprise()" id="startBtn">💘 Tap for a Surprise</button>
-  <div class="note" id="note">In your smile, I see something more beautiful than stars — and in your heart, I’ve found my home. ✨❤️</div>
-  <button id="exitBtn" style="display:none; margin-top: 30px;" onclick="resetSurprise()">Exit 💫</button>
-
-  <script>
-    let heartInterval;
-
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.classList.add('heart');
-      heart.textContent = '❤️';
-
-      heart.style.left = Math.random() * 100 + 'vw';
-      heart.style.top = Math.random() * 100 + 'vh';
-      heart.style.fontSize = Math.random() * 30 + 30 + 'px';
-
-      document.body.appendChild(heart);
-      setTimeout(() => heart.remove(), 3000);
-    }
-
-    function startSurprise() {
-      document.getElementById('startBtn').style.display = 'none';
-
-      // Start heart rain (will NOT stop)
-      heartInterval = setInterval(createHeart, 150);
-
-      // Show the love note after 5 seconds
-      setTimeout(() => {
-        document.getElementById('note').classList.add('show');
-      }, 5000);
-
-      // Show the exit button after 7 seconds
-      setTimeout(() => {
-        document.getElementById('exitBtn').style.display = 'block';
-      }, 7000);
-    }
-
-    function resetSurprise() {
-      clearInterval(heartInterval);
-      document.getElementById('note').classList.remove('show');
-      document.getElementById('exitBtn').style.display = 'none';
-      document.getElementById('startBtn').style.display = 'block';
-    }
-  </script>
-</body>
-</html>
+</body></html>
